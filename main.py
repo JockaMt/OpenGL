@@ -5,35 +5,50 @@ import numpy as np
 
 class App:
     def __init__(self):
+
+        # Tratamento de erros para caso o glfw não inicie, ao mesmo tempo que chama afunção de iniciar
         if not glfw.init():
             raise Exception("GLFW não pôde ser inicializado")
 
+        # cria uma janeça glfw e fecha o programa caso não seja possível abrir uma janela
         self.window = glfw.create_window(800, 600, "Aplicativo Minimo OpenGL", None, None)
         if not self.window:
             glfw.terminate()
             raise Exception("A janela GLFW não pôde ser criada")
 
+        # Definir a janela que vai usar, caso tenha mais de uma
         glfw.make_context_current(self.window)
-        self.triangle = Triangle()
+        # Instanciar a classe triangulo
+        self.poly = Polygon()
+        # rodar o looping principal
         self.run()
 
+    # Looping principal
     def run(self):
+        """
+        Enquanto a janela estiver aberta reconhece os eventos, faz uma limpeza de todos os píxeis da tela,
+        renderiza o poligono da tela, swap_buffers eu n sei ainda.
+        """
         while not glfw.window_should_close(self.window):
             glfw.poll_events()
             glClear(GL_COLOR_BUFFER_BIT)
-            self.triangle.render()
+            self.poly.render()
             glfw.swap_buffers(self.window)
 
+        """
+        Fechar todos os processo da lib glfw quando terminar o looping, o looping termina quando
+        o poll_events() registra o evento de fechar janela.
+        """
         glfw.terminate()
 
 
-class Triangle:
+class Polygon:
     def __init__(self):
         self.vertices = np.array([
-            [-1.0, 1.0, 0.0],
             [1.0, 1.0, 0.0],
-            [-1.0, -1.0, 0.0],
             [1.0, -1.0, 0.0],
+            [-1.0, 1.0, 0.0],
+            [-1.0, -1.0, 0.0]
         ], dtype=np.float32)
 
         self.vertex_shader_source = """
@@ -101,7 +116,7 @@ class Triangle:
     def render(self):
         glUseProgram(self.shader_program)
         glBindVertexArray(self.VAO)
-        glDrawArrays(GL_QUADS, 0, 4)
+        glDrawArrays(GL_POLYGON, 0, 4)
         glBindVertexArray(0)
 
 
